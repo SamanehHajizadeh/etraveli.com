@@ -33,7 +33,7 @@ class RentalInfoTest {
     }
 
     @Test
-    void shouldReturnMessageForChildrensMovies() {
+    void shouldReturnMessageForChildrenMovies() {
         String expected = "Rental Record for C. U. Stomer\n\tCars\t1.5\n\tCars\t3.0\nAmount owed is 4.5\nYou earned 2 frequent points\n";
 
         String result = new RentalInfo().statement(new Customer("C. U. Stomer",
@@ -43,4 +43,4 @@ class RentalInfoTest {
         assertThat(result, is(expected));
     }
 
-}
+    }
