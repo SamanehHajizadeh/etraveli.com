@@ -6,45 +6,40 @@ import com.etraveli.domain.Movie;
 import com.etraveli.domain.MovieRental;
 import com.etraveli.repository.InMemoryRepositoryMovie;
 import com.etraveli.repository.MovieRepository;
+import com.etraveli.service.StatementMessageContext.TitleAmount;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class RentalService {
 
     private final MovieRepository movieRepository = new InMemoryRepositoryMovie();
+    private final RentalMessageService messageService = new RentalMessageService();
 
     public String statement(Customer customer) {
-        var result = new StringBuilder();
-        result.append("Rental Record for ")
-                .append(customer.getName())
-                .append("\n");
-        return calculateTotalAmountsAndEnterPoints(customer.getRentals(), result);
+        return calculateTotalAmountsAndEnterPoints(customer, customer.getRentals());
     }
 
-    private String calculateTotalAmountsAndEnterPoints(List<MovieRental> movieRentals, StringBuilder result) {
+    private String calculateTotalAmountsAndEnterPoints(Customer customer, List<MovieRental> movieRentals) {
         Map<String, Movie> movies = movieRepository.findAll();
         var totalAmount = 0.0;
         var frequentEnterPoints = 0;
 
+        List<TitleAmount> titleAmounts = new ArrayList<>();
         for (MovieRental movieRental : movieRentals) {
             String movieId = movieRental.getMovieId();
             double amount = calculateAmount(movies, movieRental);
             frequentEnterPoints += calculateFrequentEnterPoints(movies, movieRental);
             totalAmount = totalAmount + amount;
-            result.append("\t")
-                    .append(movies.get(movieId).getTitle())
-                    .append("\t")
-                    .append(amount)
-                    .append("\n");
+
+           var titleAmount = new TitleAmount(movies.get(movieId).getTitle(), amount);
+            titleAmounts.add(titleAmount);
         }
-        return result.append("Amount owed is ")
-                .append(totalAmount)
-                .append("\n")
-                .append("You earned ")
-                .append(frequentEnterPoints)
-                .append(" frequent points\n")
-                .toString();
+
+        var context = new StatementMessageContext(customer, totalAmount, frequentEnterPoints, titleAmounts);
+        return messageService.createStatementMessage(context);
+
     }
 
     private int calculateFrequentEnterPoints(Map<String, Movie> movies, MovieRental movieRental) {
