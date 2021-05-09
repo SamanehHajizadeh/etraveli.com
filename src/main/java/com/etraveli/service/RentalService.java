@@ -1,6 +1,5 @@
 package com.etraveli;
 
-import com.etraveli.amountprocceesor.MovieType;
 import com.etraveli.amountprocceesor.MovieTypeFactory;
 import com.etraveli.domain.Customer;
 import com.etraveli.domain.Movie;
@@ -10,7 +9,6 @@ import com.etraveli.repository.MovieRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class RentalService {
 
@@ -50,41 +48,22 @@ public class RentalService {
     }
 
     private int calculateFrequentEnterPoints(Map<String, Movie> movies, MovieRental movieRental) {
-        for (MovieType movieType : MovieTypeFactory.movieTypes()) {
-            if (movieType.getCode().equals(movies.get(movieRental.getMovieId()).getCode())) {
-                return movieType.calculateFrequentEnterPoints(movieRental);
-            }
-        }
-        throw new IllegalArgumentException();
+        var movieRentalCode = movies.get(movieRental.getMovieId()).getCode();
+        return MovieTypeFactory.movieTypes()
+                .stream()
+                .filter(movieType -> movieType.getCode().equals(movieRentalCode))
+                .findFirst()
+                .map(movieType -> movieType.calculateFrequentEnterPoints(movieRental))
+                .orElseThrow(() -> new IllegalArgumentException("Movie type is not supported."));
     }
 
     private double calculateAmount(Map<String, Movie> movies, MovieRental movieRental) {
-        for (MovieType movieType : MovieTypeFactory.movieTypes()) {
-            if (movieType.getCode().equals(movies.get(movieRental.getMovieId()).getCode())) {
-                return movieType.calculateAmount(movieRental);
-            }
-        }
-        throw new IllegalArgumentException();
-    }
-
-    public int findFrequentEnterPoints(Customer customer) {
-        var frequentEnterPoints = 0;
-        //add frequent bonus points
-        frequentEnterPoints++;
-        // add bonus for a two day new release rental
-        List<Movie> twoDaysNew = movieRepository.findAll().values().stream().filter(
-                mov -> customer.getRentals().stream()                    // filter
-                        .anyMatch(ns ->                                  // compare both
-                                mov.getCode().equals("new") && ns.getDays() > 2))
-                .collect(Collectors.toList());
-        System.out.println(twoDaysNew);
-
-        if (movieRepository.findAll().values().stream().filter(
-                mov -> customer.getRentals().stream()                    // filter
-                        .anyMatch(ns ->                                  // compare both
-                                mov.getCode().equals("new") && ns.getDays() > 2)).count() > 0)
-            frequentEnterPoints++;
-
-        return frequentEnterPoints;
+        var movieRentalCode = movies.get(movieRental.getMovieId()).getCode();
+        return MovieTypeFactory.movieTypes()
+                .stream()
+                .filter(movieType -> movieType.getCode().equals(movieRentalCode))
+                .findFirst()
+                .map(movieType -> movieType.calculateAmount(movieRental))
+                .orElseThrow(() -> new IllegalArgumentException("Movie type is not supported."));
     }
 }
