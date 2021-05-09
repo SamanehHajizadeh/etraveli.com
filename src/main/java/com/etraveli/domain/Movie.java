@@ -1,4 +1,4 @@
-package com.etraveli;
+package com.etraveli.domain;
 
 public class Movie {
     private final String title;

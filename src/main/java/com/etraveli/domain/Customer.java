@@ -1,4 +1,4 @@
-package com.etraveli;
+package com.etraveli.domain;
 
 import java.util.List;
 

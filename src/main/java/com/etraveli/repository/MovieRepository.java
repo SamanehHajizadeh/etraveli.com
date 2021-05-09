@@ -1,6 +1,6 @@
 package com.etraveli.repository;
 
-import com.etraveli.Movie;
+import com.etraveli.domain.Movie;
 
 import java.util.Map;
 
