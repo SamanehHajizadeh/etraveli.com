@@ -2,6 +2,7 @@ package com.etraveli;
 
 import com.etraveli.domain.Customer;
 import com.etraveli.domain.MovieRental;
+import com.etraveli.service.RentalService;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

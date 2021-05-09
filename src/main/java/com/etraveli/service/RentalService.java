@@ -1,4 +1,4 @@
-package com.etraveli;
+package com.etraveli.service;
 
 import com.etraveli.amountprocceesor.MovieTypeFactory;
 import com.etraveli.domain.Customer;
